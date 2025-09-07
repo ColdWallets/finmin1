@@ -12,7 +12,7 @@ const ADMIN_IDS: string[] = String(process.env.TELEGRAM_ADMIN_IDS || "")
   .map(s => s.trim())
   .filter(Boolean)
 
-// --- helpers
+// --- Telegram helper
 async function tg(method: string, payload: any) {
   const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
     method: "POST",
@@ -40,7 +40,7 @@ async function notifyAdmins(text: string, extra: Record<string, any> = {}) {
   )
 }
 
-// --- markdown escape
+// --- MarkdownV2 escape
 function md2(s: string) {
   return String(s).replace(/[_*[\]()~`>#+\-=|{}.!]/g, (m) => "\\" + m)
 }
@@ -51,18 +51,18 @@ function money(n: number | string | undefined, currency = "₸") {
   return new Intl.NumberFormat("ru-RU").format(num) + currency
 }
 
-// --- deep link helpers
-function buildStartParam(orderId?: string | number) {
-  const raw = `order_${String(orderId ?? "")}`
-  return raw.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64) || "order_unknown"
+// --- Deep-link helpers
+function buildStartParam(orderId: string | number) {
+  const raw = `order_${String(orderId)}`
+  // допустимы [A-Za-z0-9_-], длина ≤ 64
+  return raw.replace(/[^A-Za-z0-9_-]/g, "_").slice(0, 64)
 }
-function buildBotLink(username: string | undefined, orderId?: string | number) {
+function buildBotLink(username: string | undefined, startParam: string) {
   if (!username) return null
-  const start = buildStartParam(orderId)
-  return `https://t.me/${username}?start=${encodeURIComponent(start)}`
+  return `https://t.me/${username}?start=${encodeURIComponent(startParam)}`
 }
 
-// --- types
+// --- Types
 type Product = { id: number; name: string; price: number; images?: any }
 type CartItem = { product: Product; size?: string; quantity: number }
 type Customer = {
@@ -81,9 +81,9 @@ type OrderPayload = {
   customer?: Customer
 }
 
-// --- build message
+// --- Build message text
 function buildMessage(o: {
-  id?: string
+  id: string
   items: CartItem[]
   customer?: Customer
   total?: number
@@ -92,7 +92,7 @@ function buildMessage(o: {
   const { id, items, customer, total, shippingCost } = o
 
   const lines: string[] = []
-  lines.push(`*Новый заказ*${id ? ` \\#${md2(id)}` : ""}`)
+  lines.push(`*Новый заказ* \\#${md2(id)}`)
   lines.push("")
   lines.push("*Товары:*")
 
@@ -104,12 +104,8 @@ function buildMessage(o: {
     lines.push(`• ${name} — ${qty} шт${size} — ${md2(price)}`)
   }
 
-  if (typeof shippingCost === "number") {
-    lines.push(`Доставка: ${md2(money(shippingCost))}`)
-  }
-  if (typeof total === "number") {
-    lines.push(`*Итого:* ${md2(money(total))}`)
-  }
+  if (typeof shippingCost === "number") lines.push(`Доставка: ${md2(money(shippingCost))}`)
+  if (typeof total === "number") lines.push(`*Итого:* ${md2(money(total))}`)
 
   if (customer) {
     const fio = [customer.firstName, customer.lastName].filter(Boolean).join(" ")
@@ -129,17 +125,21 @@ function buildMessage(o: {
 export async function POST(req: Request) {
   try {
     const payload = (await req.json()) as OrderPayload
-    const { orderId, items = [], total, shippingCost = 0, customer } = payload
+    const { items = [], total, shippingCost = 0, customer } = payload
 
     if (!items.length) {
       return NextResponse.json({ success: false, error: "empty_items" }, { status: 400 })
     }
 
+    // Гарантируем orderId: если фронт не прислал — используем timestamp
+    const orderId = (payload.orderId ?? "").toString().trim() || `${Date.now()}`
+
     const text = buildMessage({ id: orderId, items, customer, total, shippingCost })
     await notifyAdmins(text, { parse_mode: "MarkdownV2" })
 
+    // Возвращаем безопасный startParam + готовый botLink
     const startParam = buildStartParam(orderId)
-    const botLink = buildBotLink(BOT_USERNAME, orderId)
+    const botLink = buildBotLink(BOT_USERNAME, startParam)
 
     return NextResponse.json({ success: true, orderId, startParam, botLink })
   } catch (e: any) {
