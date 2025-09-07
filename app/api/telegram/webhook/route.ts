@@ -16,7 +16,7 @@ const ADMIN_IDS: string[] = String(
 
 const API = `https://api.telegram.org/bot${BOT_TOKEN}`
 
-// админ -> userId (in-memory)
+// админ -> userId (in-memory; для прод желательно Redis/DB)
 const adminConnections = new Map<string, string>()
 
 async function tg(method: string, payload: any) {
@@ -71,7 +71,7 @@ export async function POST(req: Request) {
   const update = await req.json()
 
   try {
-    // === кнопки
+    // === КНОПКИ
     if (update.callback_query) {
       const cb = update.callback_query
       const adminId = String(cb.from?.id)
@@ -94,7 +94,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // === сообщения
+    // === СООБЩЕНИЯ
     const msg = update.message || update.edited_message
     if (!msg) return NextResponse.json({ ok: true })
 
@@ -103,7 +103,7 @@ export async function POST(req: Request) {
     const chatId = String(msg.chat?.id)
     const text: string = msg.text ?? msg.caption ?? ""
 
-    // deep-link /start order_123
+    // deep-link /start order_xxx
     if (text?.startsWith?.("/start")) {
       const arg = text.split(" ").slice(1).join(" ")
       if (arg && arg.startsWith("order_")) {
@@ -112,7 +112,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // --- от админа
+    // --- ОТ АДМИНА
     if (isAdmin(fromId)) {
       if (text.startsWith("/reply")) {
         const [, userId, ...rest] = text.split(" ")
@@ -144,7 +144,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // --- от пользователя
+    // --- ОТ ПОЛЬЗОВАТЕЛЯ
     const userCard =
       `<b>Новое сообщение от клиента</b>\n` +
       `ID: <code>${fromId}</code>\n` +
