@@ -1,171 +1,191 @@
-import { type NextRequest, NextResponse } from "next/server"
+// app/api/telegram/webhook/route.ts
+import { NextResponse } from "next/server";
 
-// ⚠️ Move tokens and secrets to environment variables in production!
-const TELEGRAM_BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN || "8369763130:AAFDJGzAw36tiPdLfBkD610knG_pGUwQ47o"
-const ADMIN_ID = process.env.TELEGRAM_ADMIN_ID || "6772742245"      // numeric string
-const BOT_USERNAME = process.env.TELEGRAM_BOT_USERNAME || "OtrodyaBot" // without @
+// === Runtime (можно оставить nodejs для fetch/crypto) ===
+export const runtime = "nodejs";
 
-const TELEGRAM_API_URL = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}`
+// === ENV ===
+const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!;
+if (!BOT_TOKEN) throw new Error("TELEGRAM_BOT_TOKEN is not set");
 
-// In‑memory storage (stateless hosts will lose this on redeploy; use DB/Redis in prod)
-type UserSession = {
-  chatId: number
-  orderId?: string
-  status: "new" | "waiting_for_operator" | "connected_to_operator"
+const ADMIN_IDS: string[] = (
+  process.env.TELEGRAM_ADMIN_IDS ??
+  process.env.TELEGRAM_ADMIN_ID ??
+  ""
+)
+  .split(",")
+  .map((s) => s.trim())
+  .filter(Boolean);
+
+if (ADMIN_IDS.length === 0) {
+  console.warn(
+    "[telegram] No ADMIN IDS configured. Set TELEGRAM_ADMIN_IDS or TELEGRAM_ADMIN_ID"
+  );
 }
 
-const userSessions = new Map<number, UserSession>()
-const adminState: { currentUserId?: number } = {}
+const API = `https://api.telegram.org/bot${BOT_TOKEN}`;
 
-// Helpers
-async function sendMessage(chatId: number | string, text: string, replyMarkup?: any) {
-  const res = await fetch(`${TELEGRAM_API_URL}/sendMessage`, {
+// === Простая in-memory таблица подключений (на Vercel может сбрасываться на холодном старте) ===
+/**
+ * adminConnections: карта активных подключений админ → userId
+ * Когда админ нажимает кнопку "Ответить пользователю", мы сюда пишем userId.
+ * Далее все его обычные сообщения летят этому пользователю.
+ */
+const adminConnections = new Map<string, string>();
+
+// === helpers ===
+async function call<T = any>(method: string, payload: Record<string, any>) {
+  const res = await fetch(`${API}/${method}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      chat_id: chatId,
-      text,
-      parse_mode: "HTML",
-      reply_markup: replyMarkup,
-    }),
-    // @ts-ignore
-    cache: "no-store",
-  })
-  return res.json()
-}
-
-async function answerCallbackQuery(id: string, text?: string) {
-  await fetch(`${TELEGRAM_API_URL}/answerCallbackQuery`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ callback_query_id: id, text }),
-  })
-}
-
-function makeAdminConnectKeyboard(userId: number) {
-  return {
-    inline_keyboard: [
-      [{ text: "✉️ Начать чат с клиентом", callback_data: `admin_connect:${userId}` }],
-      [{ text: "📋 Список активных", callback_data: "admin_list" }],
-    ],
+    body: JSON.stringify(payload),
+  });
+  const data = (await res.json()) as { ok: boolean; result?: T; description?: string };
+  if (!data.ok) {
+    console.error(`[telegram] ${method} failed:`, data.description, payload);
   }
+  return data;
 }
 
-export async function POST(req: NextRequest) {
+async function sendMessage(
+  chat_id: string | number,
+  text: string,
+  extra: Record<string, any> = {}
+) {
+  return call("sendMessage", {
+    chat_id,
+    text,
+    parse_mode: "HTML",
+    ...extra,
+  });
+}
+
+async function answerCallbackQuery(callback_query_id: string, text?: string) {
+  return call("answerCallbackQuery", {
+    callback_query_id,
+    text,
+    show_alert: !!text && text.length > 40,
+  });
+}
+
+async function notifyAdmins(text: string, extra?: Record<string, any>) {
+  await Promise.all(ADMIN_IDS.map((id) => sendMessage(id, text, extra)));
+}
+
+function isAdmin(userId?: number | string | null) {
+  if (!userId) return false;
+  return ADMIN_IDS.includes(String(userId));
+}
+
+// === форматируем превью пользователя для админа ===
+function formatUser(u: any) {
+  const name = [u?.first_name, u?.last_name].filter(Boolean).join(" ").trim();
+  const handle = u?.username ? `@${u.username}` : "";
+  return `${name || "Без имени"} ${handle}`.trim();
+}
+
+// === основной обработчик ===
+export async function POST(req: Request) {
+  const update = await req.json();
+
   try {
-    const update = await req.json()
-
-    // Handle callback buttons (admin actions)
+    // 1) callback_query (кнопки админки)
     if (update.callback_query) {
-      const cb = update.callback_query
-      const fromId: number = cb.from.id
-      const data: string = cb.data
+      const cb = update.callback_query;
+      const from = cb.from;
+      const data: string = cb.data || "";
+      const adminId = String(from?.id);
 
-      if (String(fromId) === String(ADMIN_ID)) {
-        if (data.startsWith("admin_connect:")) {
-          const userId = Number(data.split(":")[1])
-          if (userSessions.has(userId)) {
-            adminState.currentUserId = userId
-            await answerCallbackQuery(cb.id, "Подключено к клиенту")
-            await sendMessage(ADMIN_ID, `✅ Подключено к чату с пользователем <code>${userId}</code>. Напишите сообщение — я перешлю.`)
-          } else {
-            await answerCallbackQuery(cb.id, "Пользователь не найден")
-          }
-        } else if (data === "admin_list") {
-          await answerCallbackQuery(cb.id, "Открываю список")
-          if (userSessions.size === 0) {
-            await sendMessage(ADMIN_ID, "Список пуст.")
-          } else {
-            let list = "Активные клиенты:\n\n"
-            for (const [uid, s] of userSessions) {
-              list += `• <code>${uid}</code> — статус: <b>${s.status}</b>${s.orderId ? `, заказ: <code>${s.orderId}</code>` : ""}\n`
-            }
-            await sendMessage(ADMIN_ID, list, {
-              inline_keyboard: [
-                ...[...userSessions.keys()].map((uid) => [{ text: `Подключиться к ${uid}`, callback_data: `admin_connect:${uid}` }]),
-              ],
-            })
-          }
-        }
+      // только админы
+      if (!isAdmin(adminId)) {
+        await answerCallbackQuery(cb.id, "Недостаточно прав");
+        return NextResponse.json({ ok: true });
       }
-      return NextResponse.json({ ok: true })
+
+      if (data.startsWith("connect:")) {
+        const userId = data.split(":")[1];
+        adminConnections.set(adminId, userId);
+        await answerCallbackQuery(cb.id);
+        await sendMessage(adminId, `Подключено. Теперь все ваши сообщения будут отправляться пользователю <code>${userId}</code>.`);
+        return NextResponse.json({ ok: true });
+      }
+
+      await answerCallbackQuery(cb.id);
+      return NextResponse.json({ ok: true });
     }
 
-    // Handle regular messages
-    if (update.message) {
-      const msg = update.message
-      const chatId: number = msg.chat.id
-      const fromId: number = msg.from.id
-      const text: string = msg.text || ""
+    // 2) обычные сообщения
+    const msg = update.message || update.edited_message;
+    if (!msg) return NextResponse.json({ ok: true });
 
-      // User started bot via deep-link: /start order_<id>
-      if (text.startsWith("/start")) {
-        const payload = text.split(" ").slice(1).join(" ")
-        if (payload && payload.startsWith("order_")) {
-          const orderId = payload.replace("order_", "")
-          userSessions.set(fromId, { chatId, orderId, status: "waiting_for_operator" })
+    const from = msg.from;
+    const fromId = String(from?.id);
+    const chatId = String(msg.chat?.id);
+    const text: string = msg.text ?? msg.caption ?? "";
 
-          // Message to customer
-          await sendMessage(chatId, [
-            "✅ <b>Ваш заказ принят!</b>",
-            "Для дальнейшего оформления и оплаты с вами свяжется наш оператор прямо в этом чате.",
-            "",
-            "Если у вас есть вопросы — просто напишите здесь."
-          ].join("\n"))
-
-          // Notify admin with quick-connect button
-          await sendMessage(ADMIN_ID, [
-            "🆕 <b>Новый клиент в боте</b>",
-            `Пользователь: <code>${fromId}</code>`,
-            `Заказ: <code>${orderId}</code>`,
-            "",
-            "Нажмите кнопку ниже, чтобы начать переписку."
-          ].join("\n"), makeAdminConnectKeyboard(fromId))
+    // --- Сообщение пришло от АДМИНА
+    if (isAdmin(fromId)) {
+      // команда /reply <userId> <text...>
+      if (text?.startsWith("/reply")) {
+        const [, userId, ...rest] = text.split(" ");
+        const replyText = rest.join(" ").trim();
+        if (!userId || !replyText) {
+          await sendMessage(
+            chatId,
+            "Формат: <code>/reply &lt;user_id&gt; &lt;текст&gt;</code>"
+          );
         } else {
-          // Generic /start
-          userSessions.set(fromId, { chatId, status: "new" })
-          await sendMessage(chatId, "Здравствуйте! Напишите вопрос — оператор свяжется с вами.")
+          await sendMessage(userId, replyText);
+          await sendMessage(chatId, `✅ Отправлено пользователю <code>${userId}</code>`);
         }
-        return NextResponse.json({ ok: true })
+        return NextResponse.json({ ok: true });
       }
 
-      // Relay logic
-      const isAdmin = String(fromId) == String(ADMIN_ID)
+      // если есть активная связь — шлём текущий текст подключённому пользователю
+      const connectedUser = adminConnections.get(fromId);
+      if (connectedUser) {
+        // текст или пересланное
+        if (text) await sendMessage(connectedUser, text);
+        // Если нужно поддержать фото/документы — тут можно добавить sendPhoto/sendDocument и т.п.
 
-      if (isAdmin) {
-        // Admin is writing — send to selected user if present
-        const current = adminState.currentUserId
-        if (!current || !userSessions.has(current)) {
-          await sendMessage(ADMIN_ID, "Вы не выбрали клиента. Нажмите «Список активных» и подключитесь, либо используйте /list.", {
-            inline_keyboard: [[{ text: "📋 Список активных", callback_data: "admin_list" }]],
-          })
-        } else {
-          const session = userSessions.get(current)!
-          session.status = "connected_to_operator"
-          await sendMessage(session.chatId, `👨‍💼 <b>Оператор:</b>\n\n${text}`)
-        }
-      } else {
-        // Message from a user
-        const sess = userSessions.get(fromId) || { chatId, status: "new" as const }
-        userSessions.set(fromId, sess)
-        if (sess.status !== "connected_to_operator") {
-          sess.status = "waiting_for_operator"
-        }
-        await sendMessage(ADMIN_ID, [
-          "💬 <b>Сообщение от клиента</b>",
-          `Пользователь: <code>${fromId}</code>`,
-          sess.orderId ? `Заказ: <code>${sess.orderId}</code>` : "",
-          "",
-          text,
-        ].filter(Boolean).join("\n"), makeAdminConnectKeyboard(fromId))
-        await sendMessage(chatId, "Спасибо! Оператор скоро ответит здесь.")
+        return NextResponse.json({ ok: true });
       }
-      return NextResponse.json({ ok: true })
+
+      // если связи нет — подсказываем как подключиться
+      await sendMessage(
+        chatId,
+        [
+          "Вы администратор. Чтобы ответить пользователю:",
+          "1) Нажмите кнопку <b>Ответить пользователю</b> из уведомления о его сообщении,",
+          "или 2) используйте команду:",
+          "<code>/reply &lt;user_id&gt; &lt;текст&gt;</code>",
+        ].join("\n")
+      );
+      return NextResponse.json({ ok: true });
     }
 
-    return NextResponse.json({ ok: true })
-  } catch (err) {
-    console.error("Telegram webhook error:", err)
-    return NextResponse.json({ ok: false }, { status: 500 })
+    // --- Сообщение пришло от КЛИЕНТА (не админа)
+    // Пересылаем всем админам сообщение с кнопкой «подключиться»
+    const userCard = `<b>Новое сообщение от клиента</b>\nID: <code>${fromId}</code>\nИмя: ${formatUser(from)}\n\nТекст:\n${text || "(без текста)"}`;
+
+    await notifyAdmins(userCard, {
+      reply_markup: {
+        inline_keyboard: [
+          [{ text: "Ответить пользователю", callback_data: `connect:${fromId}` }],
+        ],
+      },
+    });
+
+    // Подтверждаем пользователю
+    await sendMessage(
+      chatId,
+      "Спасибо! Сообщение отправлено оператору. Скоро ответим."
+    );
+
+    return NextResponse.json({ ok: true });
+  } catch (e) {
+    console.error("[telegram webhook] error:", e);
+    // чтобы Telegram не зафлудил ретраями — возвращаем 200
+    return NextResponse.json({ ok: true });
   }
 }
