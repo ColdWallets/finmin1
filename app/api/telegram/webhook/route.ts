@@ -1,4 +1,3 @@
-// app/api/telegram/webhook/route.ts
 import { NextResponse } from "next/server"
 
 export const runtime = "nodejs"
@@ -17,7 +16,7 @@ const ADMIN_IDS: string[] = String(
 
 const API = `https://api.telegram.org/bot${BOT_TOKEN}`
 
-// админ -> userId (in-memory; для прод лучше Redis/DB)
+// админ -> userId (in-memory)
 const adminConnections = new Map<string, string>()
 
 async function tg(method: string, payload: any) {
@@ -49,7 +48,7 @@ async function answerCallbackQuery(id: string, text?: string) {
   return tg("answerCallbackQuery", { callback_query_id: id, text })
 }
 
-async function notifyAdmins(text: string, extra?: Record<string, any>) {
+async function notifyAdmins(text: string, extra: Record<string, any> = {}) {
   if (!ADMIN_IDS.length) return
   await Promise.allSettled(ADMIN_IDS.map(id => sendMessage(id, text, extra || {})))
 }
@@ -72,7 +71,7 @@ export async function POST(req: Request) {
   const update = await req.json()
 
   try {
-    // кнопки
+    // === кнопки
     if (update.callback_query) {
       const cb = update.callback_query
       const adminId = String(cb.from?.id)
@@ -95,7 +94,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // сообщения
+    // === сообщения
     const msg = update.message || update.edited_message
     if (!msg) return NextResponse.json({ ok: true })
 
@@ -104,7 +103,7 @@ export async function POST(req: Request) {
     const chatId = String(msg.chat?.id)
     const text: string = msg.text ?? msg.caption ?? ""
 
-    // deep-link /start order_123 → покажем краткую подсказку
+    // deep-link /start order_123
     if (text?.startsWith?.("/start")) {
       const arg = text.split(" ").slice(1).join(" ")
       if (arg && arg.startsWith("order_")) {
@@ -113,7 +112,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // от админа
+    // --- от админа
     if (isAdmin(fromId)) {
       if (text.startsWith("/reply")) {
         const [, userId, ...rest] = text.split(" ")
@@ -145,7 +144,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // от пользователя
+    // --- от пользователя
     const userCard =
       `<b>Новое сообщение от клиента</b>\n` +
       `ID: <code>${fromId}</code>\n` +
@@ -158,7 +157,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ ok: true })
   } catch (e) {
     console.error("[telegram webhook] error:", e)
-    // отвечаем 200, чтобы телега не спамила ретраями
     return NextResponse.json({ ok: true })
   }
 }
