@@ -552,7 +552,7 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                 <div className={`absolute inset-0 ${isDarkMode ? "bg-black" : "bg-white"}`} />
 
                 {/* Abstract Background with Stars, Hearts, and Plus icons */}
-                <div className="absolute inset-0 overflow-hidden hidden sm:block">
+                <div className="absolute inset-0 overflow-hidden block sm:block">
                   {/* Large flowing gradient shapes */}
                   <motion.div
                     className="absolute w-96 h-96 rounded-full"
