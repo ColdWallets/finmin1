@@ -103,12 +103,23 @@ export async function POST(req: Request) {
     const chatId = String(msg.chat?.id)
     const text: string = msg.text ?? msg.caption ?? ""
 
-    // deep-link /start order_xxx
+    // === deep-link /start order_<id> → только уведомление админам
     if (text?.startsWith?.("/start")) {
-      const arg = text.split(" ").slice(1).join(" ")
+      const arg = text.split(" ").slice(1).join(" ").trim()
       if (arg && arg.startsWith("order_")) {
-        await sendMessage(chatId, "Спасибо! Напишите ваш вопрос — оператор подключится.")
+        const orderId = arg.replace(/^order_/, "") || "—"
+        const adminNote =
+          `<b>Заказ #${orderId}</b>\n\n` +
+          `<i>Клиент открыл бота по ссылке.</i>\n` +
+          `ID пользователя: <code>${fromId}</code>\n\n` +
+          `Нажмите кнопку ниже, чтобы связаться.`
+
+        await notifyAdmins(adminNote, makeAdminConnectKeyboard(fromId))
+
+        // клиенту НИЧЕГО не пишем (только 200 ОК)
+        return NextResponse.json({ ok: true })
       }
+      // если это /start без order_ — просто игнорируем
       return NextResponse.json({ ok: true })
     }
 
@@ -144,7 +155,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ ok: true })
     }
 
-    // --- ОТ ПОЛЬЗОВАТЕЛЯ
+    // --- ОТ ПОЛЬЗОВАТЕЛЯ (обычное сообщение) → оповещаем админов
     const userCard =
       `<b>Новое сообщение от клиента</b>\n` +
       `ID: <code>${fromId}</code>\n` +
@@ -152,7 +163,8 @@ export async function POST(req: Request) {
       `Текст:\n${text || "(без текста)"}`
 
     await notifyAdmins(userCard, makeAdminConnectKeyboard(fromId))
-    await sendMessage(chatId, "Спасибо! Сообщение отправлено оператору. Скоро ответим.")
+    // клиенту можно ничего не слать, но оставим вежливое подтверждение (по желанию закомментируй следующую строку)
+    // await sendMessage(chatId, "Спасибо! Сообщение отправлено оператору. Скоро ответим.")
 
     return NextResponse.json({ ok: true })
   } catch (e) {
