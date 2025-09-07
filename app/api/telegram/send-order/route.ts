@@ -1,151 +1,162 @@
-// app/api/telegram/send-order/route.ts
 import { NextResponse } from "next/server"
 
-/**
- * ENV на Vercel (Project → Settings → Environment Variables)
- * TELEGRAM_BOT_TOKEN        — токен бота
- * TELEGRAM_BOT_USERNAME     — username бота БЕЗ @ (например: OtrodyaBot)
- * TELEGRAM_ADMIN_IDS        — числовые ID админов через запятую: "111,222"
- */
+export const runtime = "nodejs"
 
 const BOT_TOKEN = process.env.TELEGRAM_BOT_TOKEN!
 const BOT_USERNAME =
   process.env.NEXT_PUBLIC_TELEGRAM_BOT_USERNAME ||
   process.env.TELEGRAM_BOT_USERNAME ||
   ""
-
-// Парсим CSV в массив строковых ID (так надёжнее: телега принимает и строки, и числа)
-const ADMIN_IDS: string[] = String(process.env.TELEGRAM_ADMIN_IDS || "")
+const ADMIN_IDS: string[] = String(
+  process.env.TELEGRAM_ADMIN_IDS || process.env.TELEGRAM_ADMIN_ID || ""
+)
   .split(",")
   .map(s => s.trim())
   .filter(Boolean)
 
-export const dynamic = "force-dynamic"
+const API = `https://api.telegram.org/bot${BOT_TOKEN}`
 
-// --- низкоуровневый вызов Telegram API
+// админ -> userId (in-memory)
+const adminConnections = new Map<string, string>()
+
 async function tg(method: string, payload: any) {
-  const res = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/${method}`, {
+  const r = await fetch(`${API}/${method}`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
-    // Без keepalive, чтобы Vercel не срезал запросы
   })
-  const text = await res.text()
+  const txt = await r.text()
   let data: any
-  try { data = JSON.parse(text) } catch { /* noop */ }
-  if (!res.ok || (data && data.ok === false)) {
-    const desc = data?.description || text
-    throw new Error(`TG ${method} ${res.status}: ${desc}`)
+  try { data = JSON.parse(txt) } catch {}
+  if (!r.ok || (data && data.ok === false)) {
+    const desc = data?.description || txt
+    console.error(`[telegram] ${method} failed: ${desc}`)
+    throw new Error(desc)
   }
-  return data?.result ?? null
+  return data?.result
 }
 
-async function notifyAdmins(text: string, extra: Record<string, any> = {}) {
-  if (!ADMIN_IDS.length) {
-    console.warn("[send-order] no TELEGRAM_ADMIN_IDS configured")
-    return
-  }
-  await Promise.allSettled(
-    ADMIN_IDS.map(chat_id => tg("sendMessage", { chat_id, text, ...extra }))
-  )
+function isAdmin(id?: number | string | null) {
+  return id ? ADMIN_IDS.includes(String(id)) : false
 }
 
-// --- утилиты форматирования
-function md2(s: string) {
-  return String(s).replace(/[_*[\]()~`>#+\-=|{}.!]/g, (m) => "\\" + m)
-}
-function money(n: number | string | undefined, currency = "₸") {
-  if (n === undefined || n === null || n === "") return ""
-  const num = Number(n)
-  if (!Number.isFinite(num)) return String(n)
-  return new Intl.NumberFormat("ru-RU").format(num) + currency
+async function sendMessage(chat_id: string | number, text: string, extra: Record<string, any> = {}) {
+  return tg("sendMessage", { chat_id, text, parse_mode: "HTML", ...extra })
 }
 
-// Типы из фронта
-type Product = { id: number; name: string; price: number; images?: any }
-type CartItem = { product: Product; size?: string; quantity: number }
-type Customer = {
-  firstName?: string
-  lastName?: string
-  email?: string
-  phone?: string
-  city?: string
-  address?: string
-}
-type OrderPayload = {
-  orderId?: string
-  items: CartItem[]
-  total?: number
-  shippingCost?: number
-  customer?: Customer
+async function answerCallbackQuery(id: string, text?: string) {
+  return tg("answerCallbackQuery", { callback_query_id: id, text })
 }
 
-// Формируем сообщение MarkdownV2
-function buildMessage(o: {
-  id?: string
-  items: CartItem[]
-  customer?: Customer
-  total?: number
-  shippingCost?: number
-}) {
-  const { id, items, customer, total, shippingCost } = o
+async function notifyAdmins(text: string, extra?: Record<string, any> = {}) {
+  if (!ADMIN_IDS.length) return
+  await Promise.allSettled(ADMIN_IDS.map(id => sendMessage(id, text, extra || {})))
+}
 
-  const lines: string[] = []
-  lines.push(`*Новый заказ*${id ? ` \\#${md2(id)}` : ""}`)
-  lines.push("")
-  lines.push("*Товары:*")
-
-  for (const it of items || []) {
-    const name = md2(it.product?.name ?? "Без названия")
-    const qty = it.quantity ?? 1
-    const size = it.size ? `, размер: ${md2(it.size)}` : ""
-    const price = money(it.product?.price ?? "")
-    lines.push(`• ${name} — ${qty} шт${size} — ${md2(price)}`)
+function makeAdminConnectKeyboard(userId: string) {
+  return {
+    reply_markup: {
+      inline_keyboard: [[{ text: "Ответить пользователю", callback_data: `connect:${userId}` }]],
+    },
   }
+}
 
-  if (typeof shippingCost === "number") {
-    lines.push(`Доставка: ${md2(money(shippingCost))}`)
-  }
-  if (typeof total === "number") {
-    lines.push(`*Итого:* ${md2(money(total))}`)
-  }
-
-  if (customer) {
-    const fio = [customer.firstName, customer.lastName].filter(Boolean).join(" ")
-    lines.push("")
-    lines.push("*Покупатель:*")
-    if (fio) lines.push(`• ${md2(fio)}`)
-    if (customer.phone) lines.push(`• ${md2(customer.phone)}`)
-    if (customer.email) lines.push(`• ${md2(customer.email)}`)
-    if (customer.city) lines.push(`• ${md2(customer.city)}`)
-    if (customer.address) lines.push(`• ${md2(customer.address)}`)
-  }
-
-  return lines.join("\n")
+function formatUser(u: any) {
+  const name = [u?.first_name, u?.last_name].filter(Boolean).join(" ").trim()
+  const handle = u?.username ? `@${u.username}` : ""
+  return `${name || "Без имени"} ${handle}`.trim()
 }
 
 export async function POST(req: Request) {
-  try {
-    const payload = (await req.json()) as OrderPayload
+  const update = await req.json()
 
-    const { orderId, items = [], total, shippingCost = 0, customer } = payload
-    if (!items.length) {
-      return NextResponse.json({ success: false, error: "empty_items" }, { status: 400 })
+  try {
+    // === кнопки
+    if (update.callback_query) {
+      const cb = update.callback_query
+      const adminId = String(cb.from?.id)
+      if (!isAdmin(adminId)) {
+        await answerCallbackQuery(cb.id, "Недостаточно прав")
+        return NextResponse.json({ ok: true })
+      }
+      const data = String(cb.data || "")
+      if (data.startsWith("connect:")) {
+        const userId = data.split(":")[1]
+        adminConnections.set(adminId, userId)
+        await answerCallbackQuery(cb.id)
+        await sendMessage(
+          adminId,
+          `Подключено. Теперь ваши сообщения будут отправляться пользователю <code>${userId}</code>.`
+        )
+        return NextResponse.json({ ok: true })
+      }
+      await answerCallbackQuery(cb.id)
+      return NextResponse.json({ ok: true })
     }
 
-    const text = buildMessage({ id: orderId, items, customer, total, shippingCost })
+    // === сообщения
+    const msg = update.message || update.edited_message
+    if (!msg) return NextResponse.json({ ok: true })
 
-    await notifyAdmins(text, { parse_mode: "MarkdownV2" })
+    const from = msg.from
+    const fromId = String(from?.id)
+    const chatId = String(msg.chat?.id)
+    const text: string = msg.text ?? msg.caption ?? ""
 
-    const botLink =
-      BOT_USERNAME && orderId ? `https://t.me/${BOT_USERNAME}?start=order_${orderId}` : null
+    // deep-link /start order_123
+    if (text?.startsWith?.("/start")) {
+      const arg = text.split(" ").slice(1).join(" ")
+      if (arg && arg.startsWith("order_")) {
+        await sendMessage(chatId, "Спасибо! Напишите ваш вопрос — оператор подключится.")
+      }
+      return NextResponse.json({ ok: true })
+    }
 
-    return NextResponse.json({ success: true, orderId, botLink })
-  } catch (e: any) {
-    console.error("send-order error:", e?.message || e)
-    return NextResponse.json(
-      { success: false, error: e?.message || "internal_error" },
-      { status: 500 }
-    )
+    // --- от админа
+    if (isAdmin(fromId)) {
+      if (text.startsWith("/reply")) {
+        const [, userId, ...rest] = text.split(" ")
+        const replyText = rest.join(" ").trim()
+        if (!userId || !replyText) {
+          await sendMessage(chatId, "Формат: <code>/reply &lt;user_id&gt; &lt;текст&gt;</code>")
+        } else {
+          await sendMessage(userId, replyText)
+          await sendMessage(chatId, `✅ Отправлено пользователю <code>${userId}</code>`)
+        }
+        return NextResponse.json({ ok: true })
+      }
+
+      const connectedUser = adminConnections.get(fromId)
+      if (connectedUser) {
+        if (text) await sendMessage(connectedUser, text)
+        return NextResponse.json({ ok: true })
+      }
+
+      await sendMessage(
+        chatId,
+        [
+          "Вы администратор. Чтобы ответить пользователю:",
+          "— нажмите кнопку <b>Ответить пользователю</b> в уведомлении",
+          "или используйте команду:",
+          "<code>/reply &lt;user_id&gt; &lt;текст&gt;</code>",
+        ].join("\n")
+      )
+      return NextResponse.json({ ok: true })
+    }
+
+    // --- от пользователя
+    const userCard =
+      `<b>Новое сообщение от клиента</b>\n` +
+      `ID: <code>${fromId}</code>\n` +
+      `Имя: ${formatUser(from)}\n\n` +
+      `Текст:\n${text || "(без текста)"}`
+
+    await notifyAdmins(userCard, makeAdminConnectKeyboard(fromId))
+    await sendMessage(chatId, "Спасибо! Сообщение отправлено оператору. Скоро ответим.")
+
+    return NextResponse.json({ ok: true })
+  } catch (e) {
+    console.error("[telegram webhook] error:", e)
+    return NextResponse.json({ ok: true })
   }
 }
