@@ -12,6 +12,7 @@ import {
   Moon,
   RotateCcw,
   Star,
+  Heart,
   ZoomIn,
   ShoppingBag,
   MapPin,
@@ -522,9 +523,9 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <Star className="w-6 h-6 text-yellow-500" />
-                <Star className="w-6 h-6 text-yellow-500" />
-                <Star className="w-6 h-6 text-yellow-500" />
+                <Heart className="w-6 h-6 text-white" strokeWidth={3} />
+                <Plus className="w-6 h-6 text-white" strokeWidth={3} />
+                <Star className="w-6 h-6 text-white" strokeWidth={3} />
               </motion.div>
             </motion.div>
           </motion.div>
@@ -1112,7 +1113,7 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                     viewport={{ once: true }}
                     transition={{ duration: 0.8, delay: 0.2 }}
                   >
-                    ЭКСКЛЮЗИВНЫЕ ДИЗАЙНЫ ДЛЯ ТЕХ, КТО НЕ БОИТСЯ ВЫДЕЛЯТЬСЯ
+                    
                   </motion.p>
                 </div>
 
@@ -1542,7 +1543,7 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                       transition={{ delay: 1.4 }}
                     >
                       <p>• ДОСТАВКА МЕЖГОРОД КАЗПОЧТА 1200 ₸ </p>
-                      <p>• ОРИГИНАЛЬНЫЙ ДИЗАЙН OTRODYA</p>
+                      <p>• </p>
                     </motion.div>
                   </div>
                 </motion.div>
