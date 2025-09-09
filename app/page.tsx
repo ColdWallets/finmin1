@@ -145,7 +145,7 @@ export default function FashionStore() {
       front: "/tshirt-front.png",
       back: "/tshirt-back.png",
     },
-    description: "“ОТРОДЬЕ ДЕНЬГИ” tee",
+    description: "",
     composition: "100% ХЛОПОК ПРЕМИУМ\nПЕЧАТЬ: цифровая прямая печать (DTG)",
     sizes: ["S", "M", "L", "XL", "XXL"],
   }
