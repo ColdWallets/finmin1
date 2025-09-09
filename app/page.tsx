@@ -1543,7 +1543,6 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                       transition={{ delay: 1.4 }}
                     >
                       <p>• ДОСТАВКА МЕЖГОРОД КАЗПОЧТА 1200 ₸ </p>
-                      <p>• </p>
                     </motion.div>
                   </div>
                 </motion.div>
