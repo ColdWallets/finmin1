@@ -1007,7 +1007,7 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                       textShadow: isDarkMode ? "0 0 80px rgba(255,255,255,0.4)" : "0 0 80px rgba(0,0,0,0.4)",
                     }}
                   >
-                    ОТРОДЬЕ
+                    ОТРОДЬЯ
                     {/* Dynamic background effect */}
                     <motion.div
                       className="absolute inset-0 -z-10"
