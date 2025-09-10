@@ -324,12 +324,12 @@ setTimeout(() => {
     fill = "currentColor",
     stroke = "none",
   }: { className?: string; fill?: string; stroke?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth="0">
+    <svg className={className} viewBox="0 0 24 24" fill={fill} stroke={stroke} ="0">
       <path d="M20,9h-5V4c0-1.7-1.3-3-3-3s-3,1.3-3,3v5H4c-1.7,0-3,1.3-3,3s1.3,3,3,3h5v5c0,1.7,1.3,3,3,3s3-1.3,3-3v-5h5 c1.7,0,3-1.3,3-3S21.7,9,20,9z" />
     </svg>
   )
 
-  const OutlinePlusIcon = ({ className, stroke = "currentColor", strokeWidth = 2 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
+  const OutlinePlusIcon = ({ className, stroke = "currentColor", strokeWidth = 5 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -2060,7 +2060,7 @@ setTimeout(() => {
             <div className="flex items-center justify-center space-x-8 mt-8">
               <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
               <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <HollowPlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+            <HollowPlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={2} />
               </div>
           </motion.div>
 
