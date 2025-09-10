@@ -96,6 +96,7 @@ export default function FashionStore() {
   const [isZoomed, setIsZoomed] = useState(false)
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 })
   const [showOrderSuccess, setShowOrderSuccess] = useState(false)
+  // Сохраняем ссылку на телеграм-бот, чтобы показать fallback ссылку
   const [telegramBotLink, setTelegramBotLink] = useState<string | null>(null)
   const [orderForm, setOrderForm] = useState<OrderForm>({
     firstName: "",
@@ -233,41 +234,42 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
       throw new Error(data?.error || "Не удалось получить ссылку на бота")
     }
 
-    // 3) Покажем экран успеха (как было)
-    setShowOrderSuccess(true)
-    setTelegramBotLink(data.botLink)
+    
+// 3) Покажем экран успеха и сохраним ссылку на бота
+setShowOrderSuccess(true)
+setTelegramBotLink(data.botLink)
 
-    // 4) КОРОТКАЯ задержка (800мс) и безопасный редирект (на мобилках — в ту же вкладку)
-    const isMobile = typeof navigator !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
-    setTimeout(() => {
-      try {
-        if (isMobile) {
-          // На мобильных окно из setTimeout часто блокируется — используем прямой переход
-          window.location.href = data.botLink
-        } else {
-          window.open(data.botLink, "_blank", "noopener")
-        }
-      } catch {}
-
-      // Чистим состояние
-      setCart([])
-      setOrderForm({
-        firstName: "",
-        lastName: "",
-        email: "",
-        phone: "",
-        city: "",
-        address: "",
-        apartment: "",
-        postalCode: "",
-        comments: "",
-      })
-      setShowOrderSuccess(false)
-      setCurrentPage("home")
-
-      // ВАЖНО: больше НЕ "https://t.me/OtrodyaBot", а ссылка из ответа
-      window.open(data.botLink, "_blank")
-    }, 3000)
+// 4) Через короткую задержку очищаем состояние и перенаправляем пользователя
+const isMobile =
+  typeof navigator !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
+setTimeout(() => {
+  try {
+    if (isMobile) {
+      // На мобильных устройствах чаще блокируют новые окна, поэтому делаем прямой переход
+      window.location.href = data.botLink
+    } else {
+      // На десктопе можно открыть в новой вкладке
+      window.open(data.botLink, "_blank", "noopener")
+    }
+  } catch (e) {
+    console.error(e)
+  }
+  // Чистим состояние
+  setCart([])
+  setOrderForm({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    city: "",
+    address: "",
+    apartment: "",
+    postalCode: "",
+    comments: "",
+  })
+  setShowOrderSuccess(false)
+  setCurrentPage("home")
+}, 800)
   } catch (error) {
     console.error("Error sending order to Telegram:", error)
     alert("Ошибка оформления заказа. Попробуйте ещё раз.")
@@ -550,7 +552,7 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
     }`}
     rel="noopener"
   >
-    Открыть бота вручную
+    Открыть бота вручную
   </a>
 )}
             </motion.div>
@@ -2050,7 +2052,7 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
             </p>
             <div className="flex items-center justify-center space-x-8 mt-8">
               <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-              <Plus className={`w-6 h-6 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+              <Plus className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={4} />
               <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
             </div>
           </motion.div>
