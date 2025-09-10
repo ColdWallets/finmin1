@@ -344,6 +344,14 @@ setTimeout(() => {
     </svg>
   )
 
+
+  const HollowPlusIcon = ({ className, stroke = "currentColor", strokeWidth = 2.5 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+      {/* Outline path tracing the contour of a thick plus */}
+      <path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z" />
+    </svg>
+  )
+
   const FilledStarIcon = ({ className, fill = "currentColor" }: { className?: string; fill?: string }) => (
     <svg className={className} viewBox="0 0 24 24" fill={fill}>
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
@@ -540,7 +548,7 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-              <OutlinePlusIcon className="w-6 h-6 text-white" strokeWidth={5} />
+              <HollowPlusIcon className="w-6 h-6 text-white" strokeWidth={3} />
                 </motion.div>
 
 {telegramBotLink && (
@@ -2052,7 +2060,7 @@ setTimeout(() => {
             <div className="flex items-center justify-center space-x-8 mt-8">
               <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
               <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <OutlinePlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={5} />
+            <HollowPlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
               </div>
           </motion.div>
 
