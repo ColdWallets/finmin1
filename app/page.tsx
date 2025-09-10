@@ -540,8 +540,8 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-                <Plus className="w-6 h-6 text-white" strokeWidth={4} />
-              </motion.div>
+              <Plus className="w-6 h-6 text-white" strokeWidth={5} />
+                </motion.div>
 
 {telegramBotLink && (
   <a
@@ -2052,9 +2052,9 @@ setTimeout(() => {
             </p>
             <div className="flex items-center justify-center space-x-8 mt-8">
               <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-              <Plus className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={4} />
               <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            </div>
+            <Plus className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={5} />
+              </div>
           </motion.div>
 
           <motion.div
