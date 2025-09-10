@@ -96,6 +96,7 @@ export default function FashionStore() {
   const [isZoomed, setIsZoomed] = useState(false)
   const [zoomPosition, setZoomPosition] = useState({ x: 0, y: 0 })
   const [showOrderSuccess, setShowOrderSuccess] = useState(false)
+  const [telegramBotLink, setTelegramBotLink] = useState<string | null>(null)
   const [orderForm, setOrderForm] = useState<OrderForm>({
     firstName: "",
     lastName: "",
@@ -234,9 +235,21 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
 
     // 3) Покажем экран успеха (как было)
     setShowOrderSuccess(true)
+    setTelegramBotLink(data.botLink)
 
-    // 4) Через 3 секунды чистим состояние и ОТКРЫВАЕМ ИМЕННО botLink
+    // 4) КОРОТКАЯ задержка (800мс) и безопасный редирект (на мобилках — в ту же вкладку)
+    const isMobile = typeof navigator !== "undefined" && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
     setTimeout(() => {
+      try {
+        if (isMobile) {
+          // На мобильных окно из setTimeout часто блокируется — используем прямой переход
+          window.location.href = data.botLink
+        } else {
+          window.open(data.botLink, "_blank", "noopener")
+        }
+      } catch {}
+
+      // Чистим состояние
       setCart([])
       setOrderForm({
         firstName: "",
@@ -527,6 +540,19 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                 <Plus className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
               </motion.div>
+
+{telegramBotLink && (
+  <a
+    href={telegramBotLink}
+    target="_self"
+    className={`inline-block mt-6 px-6 py-3 rounded-xl font-bold border transition ${
+      isDarkMode ? "text-white border-white/30 hover:bg-white/10" : "text-black border-black/30 hover:bg-black/5"
+    }`}
+    rel="noopener"
+  >
+    Открыть бота вручную
+  </a>
+)}
             </motion.div>
           </motion.div>
         )}
@@ -2023,9 +2049,9 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
               STREETWEAR BRAND
             </p>
             <div className="flex items-center justify-center space-x-8 mt-8">
-              <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} />
-              <Star className={`w-6 h-6 ${isDarkMode ? "text-white" : "text-black"}`} />
-              <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} />
+              <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+              <Plus className={`w-6 h-6 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+              <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
             </div>
           </motion.div>
 
