@@ -329,7 +329,7 @@ setTimeout(() => {
     </svg>
   )
 
-  const OutlinePlusIcon = ({ className, stroke = "currentColor", strokeWidth = 5 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
+  const OutlinePlusIcon = ({ className, stroke = "currentColor", strokeWidth = 2 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
