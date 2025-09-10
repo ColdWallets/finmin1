@@ -145,7 +145,7 @@ export default function FashionStore() {
       front: "/tshirt-front.png",
       back: "/tshirt-back.png",
     },
-    description: "",
+    description: "“ОТРОДЬЕ ДЕНЬГИ” tee",
     composition: "100% ХЛОПОК ПРЕМИУМ\nПЕЧАТЬ: цифровая прямая печать (DTG)",
     sizes: ["S", "M", "L", "XL", "XXL"],
   }
@@ -1007,7 +1007,7 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                       textShadow: isDarkMode ? "0 0 80px rgba(255,255,255,0.4)" : "0 0 80px rgba(0,0,0,0.4)",
                     }}
                   >
-                    ОТРОДЬЯ
+                    ОТРОДЬЕ
                     {/* Dynamic background effect */}
                     <motion.div
                       className="absolute inset-0 -z-10"
@@ -1543,6 +1543,7 @@ const handleOrderSubmit = async (e: React.FormEvent) => {
                       transition={{ delay: 1.4 }}
                     >
                       <p>• ДОСТАВКА МЕЖГОРОД КАЗПОЧТА 1200 ₸ </p>
+                      <p>• </p>
                     </motion.div>
                   </div>
                 </motion.div>
