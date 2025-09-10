@@ -329,13 +329,13 @@ setTimeout(() => {
     </svg>
   )
 
-  const OutlinePlusIcon = ({ className, stroke = "currentColor" }: { className?: string; stroke?: string }) => (
+  const OutlinePlusIcon = ({ className, stroke = "currentColor", strokeWidth = 5 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
     <svg
       className={className}
       viewBox="0 0 24 24"
       fill="none"
       stroke={stroke}
-      strokeWidth="4"
+      strokeWidth={strokeWidth}
       strokeLinecap="round"
       strokeLinejoin="round"
     >
@@ -540,7 +540,7 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-              <Plus className="w-6 h-6 text-white" strokeWidth={5} />
+              <OutlinePlusIcon className="w-6 h-6 text-white" strokeWidth={5} />
                 </motion.div>
 
 {telegramBotLink && (
@@ -2052,7 +2052,7 @@ setTimeout(() => {
             <div className="flex items-center justify-center space-x-8 mt-8">
               <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
               <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <Plus className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={5} />
+            <OutlinePlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={5} />
               </div>
           </motion.div>
 
