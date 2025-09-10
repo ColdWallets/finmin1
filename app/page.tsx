@@ -345,8 +345,8 @@ setTimeout(() => {
   )
 
 
-  const HollowPlusIcon = ({ className, stroke = "currentColor", strokeWidth = 2 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+  const HollowPlusIcon = ({ className, stroke = "currentColor", strokeWidth = 1.7 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
+    <svg className={className} viewBox="3 0 24 24" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       {/* Outline path tracing the contour of a thick plus */}
       <path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z" />
     </svg>
