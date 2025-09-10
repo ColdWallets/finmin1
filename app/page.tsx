@@ -324,7 +324,7 @@ setTimeout(() => {
     fill = "currentColor",
     stroke = "none",
   }: { className?: string; fill?: string; stroke?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill={fill} stroke={stroke} ="0">
+    <svg className={className} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth="0">
       <path d="M20,9h-5V4c0-1.7-1.3-3-3-3s-3,1.3-3,3v5H4c-1.7,0-3,1.3-3,3s1.3,3,3,3h5v5c0,1.7,1.3,3,3,3s3-1.3,3-3v-5h5 c1.7,0,3-1.3,3-3S21.7,9,20,9z" />
     </svg>
   )
@@ -345,7 +345,7 @@ setTimeout(() => {
   )
 
 
-  const HollowPlusIcon = ({ className, stroke = "currentColor", strokeWidth = 2.5 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
+  const HollowPlusIcon = ({ className, stroke = "currentColor", strokeWidth = 2 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       {/* Outline path tracing the contour of a thick plus */}
       <path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z" />
@@ -548,7 +548,7 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-              <HollowPlusIcon className="w-6 h-6 text-white" strokeWidth={3} />
+              <HollowPlusIcon className="w-6 h-6 text-white" />
                 </motion.div>
 
 {telegramBotLink && (
@@ -2060,7 +2060,7 @@ setTimeout(() => {
             <div className="flex items-center justify-center space-x-8 mt-8">
               <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
               <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <HollowPlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={2} />
+            <HollowPlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} />
               </div>
           </motion.div>
 
