@@ -548,7 +548,7 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-              <HollowPlusIcon className="w-6 h-6 text-white" />
+              <HollowPlusIcon className="w-8 h-8 text-white" />
                 </motion.div>
 
 {telegramBotLink && (
