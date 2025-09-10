@@ -539,8 +539,8 @@ setTimeout(() => {
                 transition={{ delay: 0.5 }}
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
-                <Plus className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
+                <Plus className="w-6 h-6 text-white" strokeWidth={4} />
               </motion.div>
 
 {telegramBotLink && (
