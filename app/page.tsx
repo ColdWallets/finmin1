@@ -548,7 +548,7 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-              <HollowPlusIcon className="w-[2.625rem] h-[2.625rem] text-white" />
+              <HollowPlusIcon className="w-11 h-11 text-white" />
                 </motion.div>
 
 {telegramBotLink && (
@@ -2058,9 +2058,9 @@ setTimeout(() => {
               STREETWEAR BRAND
             </p>
             <div className="flex items-center justify-center space-x-8 mt-8">
-              <Heart className={`w-[2.625rem] h-[2.625rem] ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-              <Star className={`w-[2.625rem] h-[2.625rem] ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <HollowPlusIcon className={`w-[2.625rem] h-[2.625rem] ${isDarkMode ? "text-white" : "text-black"}`} />
+              <Heart className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+              <Star className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+            <HollowPlusIcon className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} />
               </div>
           </motion.div>
 
