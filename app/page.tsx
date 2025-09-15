@@ -149,7 +149,7 @@ export default function FashionStore() {
     },
     description: "“ОТРОДЬЕ ДЕНЬГИ” tee",
     composition: "100% ХЛОПОК ПРЕМИУМ\nПЕЧАТЬ: цифровая прямая печать (DTG)",
-    sizes: ["S", "M", "L", "XL", "XXL"],
+    sizes: ["S", "M", "L", "XL"],
   }
 
   const fadeInUp = {
@@ -2060,7 +2060,7 @@ setTimeout(() => {
             <div className="flex items-center justify-center space-x-8 mt-8">
               <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
               <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <HollowPlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} />
+            <HollowPlusIcon className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}`} />
               </div>
           </motion.div>
 
@@ -2071,14 +2071,14 @@ setTimeout(() => {
             whileInView="animate"
             viewport={{ once: true }}
           >
-            {[{ title: "СВЯЗЬ", items: ["TELEGRAM", "INSTAGRAM"] }].map((section) => (
+            {[{ title: "СВЯЗЬ", items: ["INSTAGRAM"] }].map((section) => (
               <motion.div key={section.title} variants={fadeInUp}>
                 <h4 className="text-lg font-black tracking-wider mb-6">{section.title}</h4>
                 <ul className="space-y-3">
                   {section.items.map((item) => (
                     <li key={item}>
                       <a
-                        href="#"
+                        href="https://www.instagram.com/otrodya"
                         className={`text-lg font-light tracking-wide transition-colors ${
                           isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
                         }`}
