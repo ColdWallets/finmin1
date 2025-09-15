@@ -548,7 +548,7 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-              <HollowPlusIcon className="w-10 h-10 text-white" />
+              <HollowPlusIcon className="w-[2.625rem] h-[2.625rem] text-white" />
                 </motion.div>
 
 {telegramBotLink && (
@@ -1968,7 +1968,7 @@ setTimeout(() => {
                         <div className={`space-y-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                           <p>• Астана — курьерская доставка через Яндекс Go</p>
                           <p>• Срок доставки: в течение дня или по согласованию</p>
-                          <p>• Оплата: наличными или переводом при получении</p>
+                          <p></p>
                           <p>• Межгород — доставка через транспортные компании</p>
                           <p>• Стоимость: 1200 ₸</p>
                           <p>• Срок доставки: 2–5 рабочих дней в зависимости от города</p>
@@ -2058,9 +2058,9 @@ setTimeout(() => {
               STREETWEAR BRAND
             </p>
             <div className="flex items-center justify-center space-x-8 mt-8">
-              <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-              <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <HollowPlusIcon className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}`} />
+              <Heart className={`w-[2.625rem] h-[2.625rem] ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+              <Star className={`w-[2.625rem] h-[2.625rem] ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+            <HollowPlusIcon className={`w-[2.625rem] h-[2.625rem] ${isDarkMode ? "text-white" : "text-black"}`} />
               </div>
           </motion.div>
 
@@ -2078,7 +2078,7 @@ setTimeout(() => {
                   {section.items.map((item) => (
                     <li key={item}>
                       <a
-                        href="https://www.instagram.com/otrodya"
+                        href={item === "INSTAGRAM" ? "https://www.instagram.com/otrodya" : "#"}
                         className={`text-lg font-light tracking-wide transition-colors ${
                           isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
                         }`}
