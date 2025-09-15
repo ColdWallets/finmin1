@@ -548,7 +548,7 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-              <HollowPlusIcon className="w-11 h-11 text-white" strokeWidth={3} style={{ width: "2.75rem", height: "2.75rem" }} />
+              <svg className="w-12 h-12 text-white" viewBox="3 1 21 21" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z"></path></svg>
                 </motion.div>
 
 {telegramBotLink && (
@@ -2060,7 +2060,7 @@ setTimeout(() => {
             <div className="flex items-center justify-center space-x-8 mt-8">
               <Heart className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
               <Star className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <HollowPlusIcon className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} style={{ width: "2.75rem", height: "2.75rem" }} />
+            <svg className="w-12 h-12 text-white" viewBox="3 1 21 21" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z"></path></svg>
               </div>
           </motion.div>
 
