@@ -546,20 +546,9 @@ setTimeout(() => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <Heart className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}` strokeWidth={1.9} />
-                <Star className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}` strokeWidth={1.9} />
-              {/* inline SVG plus to avoid component issues, theme-aware color */}
-<svg
-  className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}`}
-  viewBox="3 1 21 21"
-  fill="none"
-  stroke="currentColor"
-  strokeWidth={1.9}
-  strokeLinecap="round"
-  strokeLinejoin="round"
->
-  <path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z"></path>
-</svg>
+                <Heart className="w-6 h-6 text-white" strokeWidth={3} />
+                <Star className="w-6 h-6 text-white" strokeWidth={3} />
+              <svg className="w-12 h-12 text-white" viewBox="3 1 21 21" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z"></path></svg>
                 </motion.div>
 
 {telegramBotLink && (
@@ -1215,9 +1204,11 @@ setTimeout(() => {
 
                       {/* Corner decorations */}
                       <Star
-                        className={`absolute top-4 left-4 w-6 h-6 ${isDarkMode ? "text-white" : "text-black"} opacity-60`} strokeWidth={1.9} />
+                        className={`absolute top-4 left-4 w-6 h-6 ${isDarkMode ? "text-white" : "text-black"} opacity-60`}
+                      />
                       <Star
-                        className={`absolute bottom-4 right-4 w-6 h-6 ${isDarkMode ? "text-white" : "text-black"} opacity-60`} strokeWidth={1.9} />
+                        className={`absolute bottom-4 right-4 w-6 h-6 ${isDarkMode ? "text-white" : "text-black"} opacity-60`}
+                      />
 
                       {/* Subtle glow effect */}
                       <div
@@ -1381,7 +1372,8 @@ setTimeout(() => {
                       transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
                     >
                       <Star
-                        className={`absolute bottom-6 right-6 w-8 h-8 ${isDarkMode ? "text-white" : "text-black"} opacity-60`} strokeWidth={1.9} />
+                        className={`absolute bottom-6 right-6 w-8 h-8 ${isDarkMode ? "text-white" : "text-black"} opacity-60`}
+                      />
                     </motion.div>
                   </div>
 
@@ -2066,20 +2058,9 @@ setTimeout(() => {
               STREETWEAR BRAND
             </p>
             <div className="flex items-center justify-center space-x-8 mt-8">
-              <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={1.9} />
-              <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={1.9} />
-            {/* inline SVG plus to avoid component issues, theme-aware color */}
-<svg
-  className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}`}
-  viewBox="3 1 21 21"
-  fill="none"
-  stroke="currentColor"
-  strokeWidth={1.9}
-  strokeLinecap="round"
-  strokeLinejoin="round"
->
-  <path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z"></path>
-</svg>
+              <Heart className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+              <Star className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+            <svg className="w-12 h-12 text-white" viewBox="3 1 21 21" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z"></path></svg>
               </div>
           </motion.div>
 
