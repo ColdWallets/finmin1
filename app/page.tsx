@@ -324,7 +324,7 @@ setTimeout(() => {
     fill = "currentColor",
     stroke = "none",
   }: { className?: string; fill?: string; stroke?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill={fill} stroke={stroke} strokeWidth="0">
+    <svg className={className} viewBox="3 1 21 21" fill={fill} stroke={stroke} strokeWidth="0" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <path d="M20,9h-5V4c0-1.7-1.3-3-3-3s-3,1.3-3,3v5H4c-1.7,0-3,1.3-3,3s1.3,3,3,3h5v5c0,1.7,1.3,3,3,3s3-1.3,3-3v-5h5 c1.7,0,3-1.3,3-3S21.7,9,20,9z" />
     </svg>
   )
@@ -332,7 +332,7 @@ setTimeout(() => {
   const OutlinePlusIcon = ({ className, stroke = "currentColor", strokeWidth = 5 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
     <svg
       className={className}
-      viewBox="0 0 24 24"
+      viewBox="3 1 21 21"
       fill="none"
       stroke={stroke}
       strokeWidth={strokeWidth}
@@ -345,15 +345,15 @@ setTimeout(() => {
   )
 
 
-  const HollowPlusIcon = ({ className, stroke = "currentColor", strokeWidth = 1.7 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
-    <svg className={className} viewBox="3 0 24 24" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
+  const HollowPlusIcon = ({ className, stroke = "currentColor", strokeWidth = 1.9 }: { className?: string; stroke?: string; strokeWidth?: number }) => (
+    <svg className={className} viewBox="3 1 21 21" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round" fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       {/* Outline path tracing the contour of a thick plus */}
       <path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z" />
     </svg>
   )
 
   const FilledStarIcon = ({ className, fill = "currentColor" }: { className?: string; fill?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill={fill}>
+    <svg className={className} viewBox="3 1 21 21" fill={fill} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
     </svg>
   )
@@ -361,7 +361,7 @@ setTimeout(() => {
   const OutlineStarIcon = ({ className, stroke = "currentColor" }: { className?: string; stroke?: string }) => (
     <svg
       className={className}
-      viewBox="0 0 24 24"
+      viewBox="3 1 21 21"
       fill="none"
       stroke={stroke}
       strokeWidth="2"
@@ -373,7 +373,7 @@ setTimeout(() => {
   )
 
   const FilledHeartIcon = ({ className, fill = "currentColor" }: { className?: string; fill?: string }) => (
-    <svg className={className} viewBox="0 0 24 24" fill={fill}>
+    <svg className={className} viewBox="3 1 21 21" fill={fill} fill="none" stroke={stroke} strokeWidth={strokeWidth} strokeLinecap="round" strokeLinejoin="round">
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
     </svg>
   )
@@ -381,7 +381,7 @@ setTimeout(() => {
   const OutlineHeartIcon = ({ className, stroke = "currentColor" }: { className?: string; stroke?: string }) => (
     <svg
       className={className}
-      viewBox="0 0 24 24"
+      viewBox="3 1 21 21"
       fill="none"
       stroke={stroke}
       strokeWidth="2"
@@ -548,7 +548,7 @@ setTimeout(() => {
               >
                 <Heart className="w-6 h-6 text-white" strokeWidth={3} />
                 <Star className="w-6 h-6 text-white" strokeWidth={3} />
-              <svg className="w-12 h-12 text-white" viewBox="3 1 21 21" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z"></path></svg>
+              <HollowPlusIcon className="w-12 h-12 text-black dark:text-white" />
                 </motion.div>
 
 {telegramBotLink && (
@@ -2058,9 +2058,9 @@ setTimeout(() => {
               STREETWEAR BRAND
             </p>
             <div className="flex items-center justify-center space-x-8 mt-8">
-              <Heart className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-              <Star className={`w-11 h-11 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-            <svg className="w-12 h-12 text-white" viewBox="3 1 21 21" fill="none" stroke="currentColor" strokeWidth={1.9} strokeLinecap="round" strokeLinejoin="round"><path d="M10 4h4v6h6v4h-6v6h-4v-6H4v-4h6V4z"></path></svg>
+              <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+              <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+            <HollowPlusIcon className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} />
               </div>
           </motion.div>
 
