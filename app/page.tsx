@@ -149,7 +149,7 @@ export default function FashionStore() {
     },
     description: "“ОТРОДЬЕ ДЕНЬГИ” tee",
     composition: "100% ХЛОПОК ПРЕМИУМ\nПЕЧАТЬ: цифровая прямая печать (DTG)",
-    sizes: ["S", "M", "L", "XL", "XXL"],
+    sizes: ["S", "M", "L", "XL"],
   }
 
   const fadeInUp = {
@@ -546,8 +546,8 @@ setTimeout(() => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5 }}
               >
-                <Heart className="w-6 h-6 text-white" strokeWidth={3} />
-                <Star className="w-6 h-6 text-white" strokeWidth={3} />
+                <Heart className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}` strokeWidth={1.9} />
+                <Star className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}` strokeWidth={1.9} />
               {/* inline SVG plus to avoid component issues, theme-aware color */}
 <svg
   className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}`}
@@ -1215,11 +1215,9 @@ setTimeout(() => {
 
                       {/* Corner decorations */}
                       <Star
-                        className={`absolute top-4 left-4 w-6 h-6 ${isDarkMode ? "text-white" : "text-black"} opacity-60`}
-                      />
+                        className={`absolute top-4 left-4 w-6 h-6 ${isDarkMode ? "text-white" : "text-black"} opacity-60`} strokeWidth={1.9} />
                       <Star
-                        className={`absolute bottom-4 right-4 w-6 h-6 ${isDarkMode ? "text-white" : "text-black"} opacity-60`}
-                      />
+                        className={`absolute bottom-4 right-4 w-6 h-6 ${isDarkMode ? "text-white" : "text-black"} opacity-60`} strokeWidth={1.9} />
 
                       {/* Subtle glow effect */}
                       <div
@@ -1383,8 +1381,7 @@ setTimeout(() => {
                       transition={{ duration: 20, repeat: Number.POSITIVE_INFINITY, ease: "linear" }}
                     >
                       <Star
-                        className={`absolute bottom-6 right-6 w-8 h-8 ${isDarkMode ? "text-white" : "text-black"} opacity-60`}
-                      />
+                        className={`absolute bottom-6 right-6 w-8 h-8 ${isDarkMode ? "text-white" : "text-black"} opacity-60`} strokeWidth={1.9} />
                     </motion.div>
                   </div>
 
@@ -1979,7 +1976,7 @@ setTimeout(() => {
                         <div className={`space-y-2 text-sm ${isDarkMode ? "text-gray-300" : "text-gray-700"}`}>
                           <p>• Астана — курьерская доставка через Яндекс Go</p>
                           <p>• Срок доставки: в течение дня или по согласованию</p>
-                          <p>• Оплата: наличными или переводом при получении</p>
+                          <p></p>
                           <p>• Межгород — доставка через транспортные компании</p>
                           <p>• Стоимость: 1200 ₸</p>
                           <p>• Срок доставки: 2–5 рабочих дней в зависимости от города</p>
@@ -2069,8 +2066,8 @@ setTimeout(() => {
               STREETWEAR BRAND
             </p>
             <div className="flex items-center justify-center space-x-8 mt-8">
-              <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
-              <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={3} />
+              <Heart className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={1.9} />
+              <Star className={`w-8 h-8 ${isDarkMode ? "text-white" : "text-black"}`} strokeWidth={1.9} />
             {/* inline SVG plus to avoid component issues, theme-aware color */}
 <svg
   className={`w-12 h-12 ${isDarkMode ? "text-white" : "text-black"}`}
@@ -2093,14 +2090,14 @@ setTimeout(() => {
             whileInView="animate"
             viewport={{ once: true }}
           >
-            {[{ title: "СВЯЗЬ", items: ["TELEGRAM", "INSTAGRAM"] }].map((section) => (
+            {[{ title: "СВЯЗЬ", items: ["INSTAGRAM"] }].map((section) => (
               <motion.div key={section.title} variants={fadeInUp}>
                 <h4 className="text-lg font-black tracking-wider mb-6">{section.title}</h4>
                 <ul className="space-y-3">
                   {section.items.map((item) => (
                     <li key={item}>
                       <a
-                        href="#"
+                        href={item === "INSTAGRAM" ? "https://www.instagram.com/otrodya" : "#"}
                         className={`text-lg font-light tracking-wide transition-colors ${
                           isDarkMode ? "text-gray-400 hover:text-white" : "text-gray-600 hover:text-black"
                         }`}
